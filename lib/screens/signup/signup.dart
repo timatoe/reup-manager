@@ -2,45 +2,46 @@ import 'package:flutter/material.dart';
 import 'package:formz/formz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:reup_manager/data/authentication_repository.dart';
-import 'package:reup_manager/screens/signup/signup.dart';
 
-import 'bloc/login_bloc.dart';
+import 'bloc/signup_bloc.dart';
 
-class LoginScreen extends StatelessWidget {
+class SignUpScreen extends StatelessWidget {
   static Route route() {
-    return MaterialPageRoute<void>(builder: (_) => LoginScreen());
+    return MaterialPageRoute<void>(builder: (_) => SignUpScreen());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(
+        title: const Text('Sign Up'),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: BlocProvider(
           create: (context) {
-            return LoginBloc(
+            return SignUpBloc(
               authenticationRepository:
                   RepositoryProvider.of<AuthenticationRepository>(context),
             );
           },
-          child: LoginForm(),
+          child: SignUpForm(),
         ),
       ),
     );
   }
 }
 
-class LoginForm extends StatelessWidget {
+class SignUpForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocListener<LoginBloc, LoginState>(
+    return BlocListener<SignUpBloc, SignUpState>(
       listener: (context, state) {
         if (state.status.isSubmissionFailure) {
           Scaffold.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
-              const SnackBar(content: Text('Authentication Failure')),
+              const SnackBar(content: Text('Account Creation Failure')),
             );
         }
       },
@@ -51,30 +52,30 @@ class LoginForm extends StatelessWidget {
           children: [
             _EmailInput(),
             const Padding(padding: EdgeInsets.all(12)),
+            _DisplayNameInput(),
+            const Padding(padding: EdgeInsets.all(12)),
             _PasswordInput(),
             const Padding(padding: EdgeInsets.all(12)),
-            _LoginButton(),
-            const Padding(
-              padding: EdgeInsets.all(12),
-            ),
-            _SignUpButton(),
+            _AccountCreationButton(),
           ],
         ),
       ),
     );
   }
+
+  
 }
 
 class _EmailInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LoginBloc, LoginState>(
+    return BlocBuilder<SignUpBloc, SignUpState>(
       buildWhen: (previous, current) => previous.email != current.email,
       builder: (context, state) {
         return TextField(
-          key: const Key('loginForm_emailInput_textField'),
+          key: const Key('signUpForm_emailInput_textField'),
           onChanged: (email) =>
-              context.bloc<LoginBloc>().add(LoginEmailChanged(email)),
+              context.bloc<SignUpBloc>().add(SignUpEmailChanged(email)),
           decoration: InputDecoration(
             labelText: 'email',
             errorText: state.email.invalid ? 'invalid email' : null,
@@ -85,16 +86,36 @@ class _EmailInput extends StatelessWidget {
   }
 }
 
+class _DisplayNameInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SignUpBloc, SignUpState>(
+      buildWhen: (previous, current) => previous.displayName != current.displayName,
+      builder: (context, state) {
+        return TextField(
+          key: const Key('signUpForm_displayNameInput_textField'),
+          onChanged: (displayName) =>
+              context.bloc<SignUpBloc>().add(SignUpDisplayNameChanged(displayName)),
+          decoration: InputDecoration(
+            labelText: 'display name',
+            errorText: state.displayName.invalid ? 'invalid display name' : null,
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _PasswordInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LoginBloc, LoginState>(
+    return BlocBuilder<SignUpBloc, SignUpState>(
       buildWhen: (previous, current) => previous.password != current.password,
       builder: (context, state) {
         return TextField(
-          key: const Key('loginForm_passwordInput_textField'),
+          key: const Key('signUpForm_passwordInput_textField'),
           onChanged: (password) =>
-              context.bloc<LoginBloc>().add(LoginPasswordChanged(password)),
+              context.bloc<SignUpBloc>().add(SignUpPasswordChanged(password)),
           obscureText: true,
           decoration: InputDecoration(
             labelText: 'password',
@@ -106,37 +127,23 @@ class _PasswordInput extends StatelessWidget {
   }
 }
 
-class _LoginButton extends StatelessWidget {
+class _AccountCreationButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<LoginBloc, LoginState>(
+    return BlocBuilder<SignUpBloc, SignUpState>(
       buildWhen: (previous, current) => previous.status != current.status,
       builder: (context, state) {
         return state.status.isSubmissionInProgress
             ? const CircularProgressIndicator()
             : RaisedButton(
-                key: const Key('loginForm_continue_raisedButton'),
-                child: const Text('Login'),
+                key: const Key('signUpForm_continue_raisedButton'),
+                child: const Text('Create Account'),
                 onPressed: state.status.isValidated
                     ? () {
-                        context.bloc<LoginBloc>().add(const LoginSubmitted());
+                        context.bloc<SignUpBloc>().add(const SignUpSubmitted());
                       }
                     : null,
               );
-      },
-    );
-  }
-}
-
-class _SignUpButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return RaisedButton(
-      key: const Key('loginForm_signup_raisedButton'),
-      child: const Text('Sign Up'),
-      onPressed: () {
-        Navigator.of(context).push<void>(
-            MaterialPageRoute(builder: (context) => SignUpScreen()));
       },
     );
   }
