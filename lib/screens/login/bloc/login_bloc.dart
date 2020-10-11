@@ -5,8 +5,8 @@ import 'package:equatable/equatable.dart';
 import 'package:formz/formz.dart';
 import 'package:meta/meta.dart';
 import 'package:reup_manager/data/authentication_repository.dart';
-import 'package:reup_manager/screens/login/formz_inputs/password.dart';
-import 'package:reup_manager/screens/login/formz_inputs/email.dart';
+import 'package:reup_manager/screens/widgets/formz_inputs/password.dart';
+import 'package:reup_manager/screens/widgets/formz_inputs/email.dart';
 
 part 'login_event.dart';
 part 'login_state.dart';

@@ -23,6 +23,24 @@ class AuthenticationRepository {
     yield* _controller.stream;
   }
 
+  Future<void> signUp({
+    @required String email,
+    @required String displayName,
+    @required String password,
+  }) async {
+    assert(email != null);
+    assert(displayName != null);
+    assert(password != null);
+    try {
+      var jwt = await authApiClient.signUp(email, displayName, password);
+      await secureStorage.write(key: "jwt", value: jwt);
+      _controller.add(AuthenticationStatus.authenticated);
+    } on Exception catch (exception) {
+      print(exception);
+      _controller.add(AuthenticationStatus.unauthenticated);
+    }
+  }
+
   Future<void> logIn({
     @required String email,
     @required String password,
